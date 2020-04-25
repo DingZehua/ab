@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="vue.js"></script>
     <script src="myjs.js"></script>
+    <script src="axios.min.js"></script>
     <style>
         * { margin: 0; padding:0; }
         html { font-size:26.6666667vw; font-family:'微软雅黑'}
@@ -29,50 +30,82 @@
         #loading div {
             margin : auto;
         }
+        #ship_order {
+            position:relative;
+        }
+        #ship_order .title{
+            border: 1px solid black;
+            border-radius : 2px;
+            font-size: 12px;
+            text-align: center;
+        }
+        #ship_order .pos_right {
+            position: absolute;
+            right : 0;
+            top : 0;
+        }
+        .hidden {
+            display : none;
+        }
     </style>
     <script>
         const ship_order = {
             template : `
-                <div>
-                    <h3 class="title">{{ship_no}}</h3>
-                    <div class="pos_right"><img src="images/edit.png"/><div><p>删除</p><p @click="$emit('edit')">修改</p></div></div>
+                <div id="ship_order">
+                    <h3 class="title">{{item.ship_no}}</h3>
+                    <div class="pos_right"><img src="images/edit.png"/><div class="hidden"><p @click="$emit('del');">删除</p><p @click="$emit('edit')">修改</p></div></div>
                     <div class="main">
-                        <span>款号:{{(sub_number ? number + '-' + sub_number : number) + '#'}}</span>
-                        <span>品牌:{{brand}}}}</span>
-                        <span>数量:{{quantity}}</span>
-                        <span>完成数量:{{completed}}</span>
-                        <span>状态:{{state}}</span>
-                        <span>备注:{{remark}}</span>
+                        <span>款号:{{(item.sub_number ? item.number + '-' + item.sub_number : item.number) + '#'}}</span>
+                        <span>品牌:{{item.brand}}</span>
+                        <span>数量:{{item.quantity}}</span>
+                        <span>完成数量:{{item.completed}}</span>
+                        <span>状态:{{item.state}}</span>
+                        <span>备注:{{item.remark}}</span>
                     </div>
                 </div>
             `,
             props : [
-                'ship_no','number','sub_number','brand','quantity','completed','state','remark'
-            ],
-            methods : {
-
-            }
+                'item'
+            ]
         };
         const ship_order_edit = {
             template : `
                 <div>
-                    <h3 class="title">{{ship_no}}</h3>
+                    <h3 class="title">{{item.ship_no}}</h3>
                     <div class="pos_right"><img src="images/edit.png"/></div>
                     <div class="main">
-                        <span>款号:{{(sub_number ? number + '-' + sub_number : number) + '#'}}</span>
-                        <span>品牌:{{brand}}}}</span>
-                        <span>数量:{{quantity}}</span>
-                        <span>完成数量:{{completed}}</span>
-                        <span>状态:{{state}}</span>
-                        <span>备注:{{remark}}</span>
+                        <label for="number">编号:<input id="number" type="tel" v-model="item.number"/></label>
+                        <label for="sub_number">子编号:<input type="tel" v-model="item.sub_number"/></label>
+                        <label for="brand">品牌:<input type="tel" v-model="item.brand"/></label>
+                        <label for="quantity">数量:<input type="tel" v-model="item.quantity"/></label>
+                        <label for="completed">完成数量:<input type="tel" v-model="item.completed"/></label>
+                        <label for="state">状态:<input type="tel" v-model="item.state"/></label>
+                        <label for="remark">备注:<input type="tel" v-model="item.remark"/></label>
                     </div>
+                    <p> <button @click="save()">保存</button><button @click="reset()">复原</button><button @click="cancel()">取消</button> </p>
                 </div>
             `,
             props : [
-                'ship_no','number','sub_number','brand','quantity','completed','state','remark'
+                'item'
             ],
             methods : {
-
+                save() {
+                    this.$emit('save',cm.copy(this.item));
+                },
+                reset() {
+                    this.item = cm.copy(this.origin);
+                },
+                cancel() {
+                    this.$emit('cancel');
+                }
+            },
+            created() {
+                this.origin = cm.copy(this.item);
+            },
+            data() {
+                return {
+                    origin : {}
+                }
             }
         };
         const ship_order_add = {
@@ -87,19 +120,112 @@
 
             }
         };
+        const ship = {
+            template : 
+            `
+                <component :is="components[model]" v-bind:item="item" @del="del()" @edit="edit()" @save="save($event)" @cancel="cancel()"></component>
+            `,
+            data () {
+                return {
+                    type : ['edit','see'],
+                    model : 'see',
+                    components : {
+                        'edit' : 'ship_order_edit',
+                        'see'  : 'ship_order'
+                    }
+                }
+            },
+            props : [
+                'item'
+            ],
+            methods : {
+                cancel() {
+                    this.model = 'see';
+                },
+                edit(){
+                    this.model = 'edit';
+                },
+                save(item) {
+                    this.send(item);
+                },
+                send(item) {
+                    axios.get('/ship_save',{
+                        params : item
+                    }).
+                    then((jsonData) => {
+                        let result = JSON.parse(jsonData);
+                        if(!result.error) {
+                            this.item = item;
+                        }
+                    },(error) => {
+
+                    })
+                },
+                del() {
+                    axios.get('/ship_del',
+                        {
+                            params : {
+                                ship_no : this.ship_no
+                            }
+                        }
+                    ).
+                    then((jsonData) => {
+                        let result = JSON.parse(jsonData);
+                        if(!result.error) {
+                            
+                        }
+                    },(error) => {
+
+                    })
+                }
+            }
+        }
         Vue.component('ship_order',ship_order);
         Vue.component('ship_order_edit',ship_order_edit);
-        Vue.component('ship_order_add',ship_order_add)
-        new Vue({
-            el : '#app',
-            data : {
-
-            }
-        });
+        Vue.component('ship_order_add',ship_order_add);
+        Vue.component('ship',ship);
+        let vm = null;
+        window.onload = () => {
+            vm = new Vue({
+                el : '#app',
+                data : {
+                    item : [],
+                    loaded : false,
+                    loading : false
+                },
+                methods : {
+                    getData() {
+                        this.loading = true;
+                        axios.get('http://192.168.0.115/ship_data',{
+                            params : {
+                                ship_no : 1587786093877
+                            }
+                        }).
+                        then((res) => {
+                            let result = res.data;
+                            console.log(result.data);
+                            if(!result.error) {
+                                this.item = result.data[0];
+                                this.loaded = true;
+                            }
+                        },(error) => {
+                            console.log(error);
+                        }).then( ()=> {
+                            this.loading = false;
+                        })
+                    }
+                }
+            });
+        }
     </script>
     <title>Document</title>
 </head>
 <body>
-    <div id="app"></div>
+    <div id="app">
+        <div id='loading' :class="[loading ? 'show' : '']"><div>loading...</div></div>
+        <ship v-if="loaded" v-bind:item="item"></ship>
+        <div v-else>Hello World</div>
+        <button @click="getData">获取数据</button>
+    </div>
 </body>
 </html>

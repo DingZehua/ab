@@ -346,6 +346,9 @@ var namespace = function () {
       'JSONtoObj': function (jsonData) {
         return JSON.parse(jsonData);
       },
+      'copy'  : function(o) {
+          return JSON.parse(JSON.stringify(o));
+      },
       'get_uri_param': function (name) {
         name = name || '';
         var uri = window.location.search.replace('?', '');

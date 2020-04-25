@@ -33,9 +33,31 @@ app.use('/server.js',function(req,res) {
   res.send('404');
 })
 
+
 app.get('/*.*', function (req, res) {
   res.sendFile(convert(req.path));
 });
+
+app.get('/ship_data',function(req,res){
+  if(req.query.ship_no) {
+    let ship_no = addSlash(req.query.ship_no);
+    let result = {error : 0,data : null};
+    cn.query(`SELECT * FROM ship_table WHERE ship_no = "${ship_no}"`).then(
+      (data) => {
+        result.data = data;
+      },
+      (error) => {
+        result.error = 1;
+        console.log(error);
+      }
+    ).then(() => {
+      res.send(JSON.stringify(result));
+    });
+    return;
+  }
+  res.send('error,unFine param ship_data');
+});
+
 var server = app.listen({host:"192.168.0.115",port : 80}, function () {
  
   var host = server.address().address
@@ -43,6 +65,12 @@ var server = app.listen({host:"192.168.0.115",port : 80}, function () {
   console.log("应用实例，访问地址为 http://%s:%s", host, port)
  
 });
+
+
+function addSlash(str) {
+  return str.replace(/[']/g,'\\\'').replace(/["]/g,'\\"').replace(/[`]/g,'\\`');
+
+}
 
 function convert(path) {
   str = path.split('.');
