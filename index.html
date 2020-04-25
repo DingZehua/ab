@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+    <script src="vue.js"></script>
+    <script src="myjs.js"></script>
+    <style >
+        * { margin: 0; padding:0; }
+        html { font-size:26.6666667vw; font-family:'微软雅黑'}
+        body {background-color:rgba(197, 231, 254,0.25);}
+        body,h1,h2,h3 { font-size:16px;}
+        #loading {
+            width : 0.8rem;
+            height : 0.8rem;
+            position:fixed;
+            top : 50%;
+            left : 50%;
+            margin-left : -0.4rem;
+            margin-top : -0.4rem;
+            background : rgba(0,0,0,0.29);
+            border-radius : 0.05rem;
+            text-align : center;
+            display: none;
+        }
+        #loading.show {
+            display:  flex;
+        }
+        #loading div {
+            margin : auto;
+        }
+        #app table {
+            border-collapse:collapse;empty-cells: hide;width:100%;
+        }
+        #app table td {
+            border:1px solid black;text-align: center;
+        }
+        #app tr.head {
+            font-weight:bold;
+            font-size:16px
+        }
+        #app tr {
+            font-size:14px;
+        }
+        #app tr.odd {
+            background-color: rgb(252, 243, 207);
+        }
+        #params { padding:0.05rem 0 0.05rem 0.05rem; margin : auto auto ;}
+        #params input{
+            width:0.4rem;
+            text-indent : 0.2em;
+        }
+        #btn_box {
+            padding-top : 4px;
+            padding-left:0.2rem;
+        }
+        #btn_box button {
+            width : 60px;
+            margin-left:5px;
+        }
+    </style>
+    <script>
+        let vm = null;
+        window.onload = () => {
+            vm = new Vue({
+                el : '#app',
+                data : {
+                    items : [],
+                    loading : false,
+                    query : {
+                        number : 0,
+                        sub_number : 0,
+                        len : 0,
+                        width : 0,
+                        height : 0,
+                        brand : '',
+                        range : 3
+                    },
+                    query_type : {
+                        number : Number,
+                        sub_number : Number,
+                        len : Number,
+                        width : Number,
+                        height : Number,
+                        brand : String,
+                        range : Number
+                    }
+                },
+                methods : {
+                    getData() {
+                        if(this.loading) return;
+                        this.loading = true;
+                        cm.get(this.filterQuery(),'data',(jsonData) => {
+                            let result = JSON.parse(jsonData);
+                            if(!result.error)
+                                this.items = result.data;
+                            this.loading = false;
+                        });
+                    },
+                    filterQuery() {
+                        let temp = {};
+                        for(name in this.query) {
+                            if(this.query.hasOwnProperty(name)) {
+                                if(!cm.empty(this.query[name])) {
+                                    if(this.query_type[name] == Number)
+                                        temp[name] =  parseFloat(this.query[name]);
+                                    else 
+                                        temp[name] = this.query[name];
+                                }
+                            }
+                        }
+                        return temp;
+                    },
+                    reset() {
+                        this.query.number = 0;
+                        this.query.sub_number = 0;
+                        this.query.len = 0;
+                        this.query.width = 0;
+                        this.query.height = 0;
+                        this.query.brand = '';
+                        this.query.range = 3;
+                    }
+                }
+            });
+            let queryEl = cm.g('#query');
+            window.onkeypress = (e) => {
+                if(e.key.toLowerCase() === 'enter') {
+                    query.click();
+                }
+            }
+        }
+    </script>
+    <title>纸箱搜索</title>
+</head>
+<body>
+    <div id='app'>
+        <div id='loading' :class="[loading ? 'show' : '']"><div>loading...</div></div>
+        <div id="params">
+            <label for="number">编号:<input id='number' type="tel" v-model="query.number" @click="$event.target.select();" ></label>
+            <label for="sub_number">子编号:<input id="sub_number" type="tel"  v-model="query.sub_number" @click="$event.target.select();"></label><br/>
+            <label for="len">长度:<input id="len" type="tel" v-model="query.len" @click="$event.target.select();"></label>
+            <label for="width">宽度:<input id='width' type="tel" v-model="query.width" @click="$event.target.select();"></label>
+            <label for="height">高度:<input id="height" type="tel" v-model="query.height" @click="$event.target.select();"></label><br/>
+            <label for="brand">品牌:<input id="brand" type="text" v-model="query.brand" @click="$event.target.select();"></label>
+            <label for="range">误差:<input id="range" type="tel" v-model="query.range" @click="$event.target.select();"></label><br/>
+            <p id='btn_box'><button v-on:click="getData" id="query">查询</button><button @click="reset">重置</button></p>
+        </div>
+        <table cellspacing="0">
+            <tr class="head">
+                <td>款号</td>
+                <td>长度</td>
+                <td>宽度</td>
+                <td>高度</td>
+                <td>品牌</td>
+                <td>备注</td>
+                <td>层数</td>
+            </tr>
+            <tr v-for="(item,i) in items" :class="[i % 2 == 0 ? '' : 'odd']">
+                <td>{{(item.sub_number ? item.number + '-' + item.sub_number : item.number) + '#'}}</td>
+                <td>{{item.len}}</td>
+                <td>{{item.width}}</td>
+                <td>{{item.height}}</td>
+                <td>{{item.brand}}</td>
+                <td>{{item.remark}}</td>
+                <td>{{item.layer}}</td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

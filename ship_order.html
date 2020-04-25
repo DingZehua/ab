@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="vue.js"></script>
+    <script src="myjs.js"></script>
+    <style>
+        * { margin: 0; padding:0; }
+        html { font-size:26.6666667vw; font-family:'微软雅黑'}
+        body {background-color:rgba(197, 231, 254,0.25);}
+        body,h1,h2,h3 { font-size:16px;}
+        #loading {
+            width : 0.8rem;
+            height : 0.8rem;
+            position:fixed;
+            top : 50%;
+            left : 50%;
+            margin-left : -0.4rem;
+            margin-top : -0.4rem;
+            background : rgba(0,0,0,0.29);
+            border-radius : 0.05rem;
+            text-align : center;
+            display: none;
+        }
+        #loading.show {
+            display:  flex;
+        }
+        #loading div {
+            margin : auto;
+        }
+    </style>
+    <script>
+        const ship_order = {
+            template : `
+                <div>
+                    <h3 class="title">{{ship_no}}</h3>
+                    <div class="pos_right"><img src="images/edit.png"/><div><p>删除</p><p @click="$emit('edit')">修改</p></div></div>
+                    <div class="main">
+                        <span>款号:{{(sub_number ? number + '-' + sub_number : number) + '#'}}</span>
+                        <span>品牌:{{brand}}}}</span>
+                        <span>数量:{{quantity}}</span>
+                        <span>完成数量:{{completed}}</span>
+                        <span>状态:{{state}}</span>
+                        <span>备注:{{remark}}</span>
+                    </div>
+                </div>
+            `,
+            props : [
+                'ship_no','number','sub_number','brand','quantity','completed','state','remark'
+            ],
+            methods : {
+
+            }
+        };
+        const ship_order_edit = {
+            template : `
+                <div>
+                    <h3 class="title">{{ship_no}}</h3>
+                    <div class="pos_right"><img src="images/edit.png"/></div>
+                    <div class="main">
+                        <span>款号:{{(sub_number ? number + '-' + sub_number : number) + '#'}}</span>
+                        <span>品牌:{{brand}}}}</span>
+                        <span>数量:{{quantity}}</span>
+                        <span>完成数量:{{completed}}</span>
+                        <span>状态:{{state}}</span>
+                        <span>备注:{{remark}}</span>
+                    </div>
+                </div>
+            `,
+            props : [
+                'ship_no','number','sub_number','brand','quantity','completed','state','remark'
+            ],
+            methods : {
+
+            }
+        };
+        const ship_order_add = {
+            template : 
+            `
+            
+            `,
+            props : [
+
+            ],
+            methods : {
+
+            }
+        };
+        Vue.component('ship_order',ship_order);
+        Vue.component('ship_order_edit',ship_order_edit);
+        Vue.component('ship_order_add',ship_order_add)
+        new Vue({
+            el : '#app',
+            data : {
+
+            }
+        });
+    </script>
+    <title>Document</title>
+</head>
+<body>
+    <div id="app"></div>
+</body>
+</html>
