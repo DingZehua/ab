@@ -19,6 +19,7 @@ app.get('/data',(req,res) => {
         result.data = data;
       },
       (error) => {
+        console.log(error);
         result.error = 1;
       }
     ).then(() => {
@@ -68,7 +69,7 @@ app.get('/ship_modify', async function(req,res) {
   res.send('Error,params invalid');
 });
 
-var server = app.listen({host:"192.168.0.115",port : 80}, function () {
+var server = app.listen({host:"127.0.0.1",port : 80}, function () {
  
   var host = server.address().address
   var port = server.address().port
