@@ -11,7 +11,12 @@ const C = require('./CONSTANT');
 app.get('/data',(req,res) => {
   let result = {error : 0,data : ''};
   if(!empty(req.query)) {
-    let sql = 'SELECT * FROM box ' + where(req.query);
+    let upMove = 5;
+    // let sql = `
+    //           SELECT top ${upMove} * FROM box WHERE box_id not in(
+    //           SELECT top ${ upMove * 2 } box_id FROM box )
+    //           ${where(req.query)}`;
+    let sql = `SELECT * FROM box  ${where(req.query)}`;
     console.log(sql);
     cn.query(sql).then(
       (data) => {
@@ -148,7 +153,6 @@ function where(params,order) {
     if(params.hasOwnProperty(name)){
       if(where != '') where += ' AND ';
       if(range && (name == 'len' || name == 'width' || name == 'height')) {
-          console.log(typeof params[name],typeof range);
           where += name + '>' + (params[name] - range) + ' AND ' + name + '<' + (+params[name] + (+range)) + ' ';
       } else if(name == 'brand') {
         where += name + ' LIKE "%' + addSlash(params[name]) + '%" ';
@@ -161,7 +165,7 @@ function where(params,order) {
     where = ' WHERE ' + where;
   }
 
-  where += ' ORDER BY len '
+  where += ' ORDER BY len,width,height '
 
   if(order) {
 

@@ -92,9 +92,36 @@
                         this.loading = true;
                         cm.get(this.filterQuery(),'data',(jsonData) => {
                             let result = JSON.parse(jsonData);
-                            if(!result.error)
-                                this.items = result.data;
+                            if(!result.error) {
+                                if(result.data.length > 1) {
+                                    //this.items = result.data;
+                                    let data = result.data;
+                                    if(this.query.len > 0) {
+                                        order.call(this,data,'len');
+                                    } else if(this.query.width) {
+                                        order.call(this,data,'width');
+                                    } else if(this.query.height) {
+                                        order.call(this,data,'height');
+                                    }
+                                    this.items = result.data;
+                                }
+                            }
                             this.loading = false;
+                            function order(data,field,) {
+                                for(let i = 0,len = data.length;i < len; i++) {
+                                        data[i]['order'] = Math.abs(this.query[field] - data[i][field]);
+                                    }
+                                    data.sort((a,b) => {
+                                        let c = b.order - a.order;
+                                        if(c > 0) {
+                                            return -1;
+                                        } else if(c < 0){
+                                            return 1;
+                                        } else {
+                                            return 0;
+                                        }
+                                    });
+                            }
                         });
                     },
                     filterQuery() {

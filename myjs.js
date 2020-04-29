@@ -545,7 +545,7 @@ var namespace = function () {
   var cm = myns.common;
   var css = myns.css;
   var size = myns.size;
-  
+  var log = console.log.bind(console);
   //dom.querySelector
   
   /*EventHandler接口*/
