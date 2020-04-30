@@ -105,8 +105,6 @@
                             }
                             this.loading = false;
 
-                            queryEl.blur();
-                            
                             function order(data,field,) {
                                 for(let i = 0,len = data.length;i < len; i++) {
                                         data[i]['order'] = Math.abs(this.query[field] - data[i][field]);
@@ -150,10 +148,12 @@
                 }
             });
             let queryEl = cm.g('#query');
+            let body = cm.g(`~body`);
+            console.log(body);
             window.onkeypress = (e) => {
                 if(e.key.toLowerCase() === 'enter') {
                     queryEl.click();
-                    queryEl.focus();
+                    
                 }
             }
         }
