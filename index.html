@@ -104,6 +104,9 @@
                                 this.items = result.data;
                             }
                             this.loading = false;
+
+                            queryEl.blur();
+                            
                             function order(data,field,) {
                                 for(let i = 0,len = data.length;i < len; i++) {
                                         data[i]['order'] = Math.abs(this.query[field] - data[i][field]);
@@ -149,7 +152,8 @@
             let queryEl = cm.g('#query');
             window.onkeypress = (e) => {
                 if(e.key.toLowerCase() === 'enter') {
-                    query.click();
+                    queryEl.click();
+                    queryEl.focus();
                 }
             }
         }
