@@ -173,13 +173,14 @@ var namespace = function () {
         return this.gTags(TagName)[0];
       },
       'g': function (str) {
-        if (!/[#.>:@]|\s/.test(str)) {
+        if (!/[#.>:@~]|\s/.test(str)) {
           return document.getElementById(str);
         }
         else if (/^[#][a-zA-Z0-9_\-]+$/.test(str)) {
           return document.querySelector(str);
         }
-        else if(str[0] !== '@'){
+        else if(str[0] === '~'){
+          str = str.replace('~','');
           return document.querySelector(str);
         } else {
           str = str.replace(/@/g, '');

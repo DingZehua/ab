@@ -93,20 +93,18 @@
                         cm.get(this.filterQuery(),'data',(jsonData) => {
                             let result = JSON.parse(jsonData);
                             if(!result.error) {
-                                if(result.data.length > 1) {
-                                    //this.items = result.data;
-                                    let data = result.data;
-                                    if(this.query.len > 0) {
-                                        order.call(this,data,'len');
-                                    } else if(this.query.width) {
-                                        order.call(this,data,'width');
-                                    } else if(this.query.height) {
-                                        order.call(this,data,'height');
-                                    }
-                                    this.items = result.data;
+                                let data = result.data;
+                                if(this.query.len > 0) {
+                                    order.call(this,data,'len');
+                                } else if(this.query.width) {
+                                    order.call(this,data,'width');
+                                } else if(this.query.height) {
+                                    order.call(this,data,'height');
                                 }
+                                this.items = result.data;
                             }
                             this.loading = false;
+
                             function order(data,field,) {
                                 for(let i = 0,len = data.length;i < len; i++) {
                                         data[i]['order'] = Math.abs(this.query[field] - data[i][field]);
@@ -150,9 +148,12 @@
                 }
             });
             let queryEl = cm.g('#query');
+            let body = cm.g(`~body`);
+            console.log(body);
             window.onkeypress = (e) => {
                 if(e.key.toLowerCase() === 'enter') {
-                    query.click();
+                    queryEl.click();
+                    
                 }
             }
         }

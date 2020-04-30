@@ -154,7 +154,7 @@ function where(params,order) {
     if(params.hasOwnProperty(name)){
       if(where != '') where += ' AND ';
       if(range && (name == 'len' || name == 'width' || name == 'height')) {
-          where += name + '>' + (params[name] - range) + ' AND ' + name + '<' + (+params[name] + (+range)) + ' ';
+          where += name + '>=' + (params[name] - range) + ' AND ' + name + '<=' + (+params[name] + (+range)) + ' ';
       } else if(name == 'brand') {
         where += name + ' LIKE "%' + addSlash(params[name]) + '%" ';
       } else {
