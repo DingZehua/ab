@@ -169,7 +169,7 @@
             <label for="width">宽度:<input id='width' type="tel" v-model="query.width" @click="$event.target.select();"></label>
             <label for="height">高度:<input id="height" type="tel" v-model="query.height" @click="$event.target.select();"></label><br/>
             <label for="brand">品牌:<input id="brand" type="text" v-model="query.brand" @click="$event.target.select();"></label>
-            <label for="range">误差:<input id="range" type="tel" v-model="query.range" @click="$event.target.select();"></label><br/>
+            <label for="range">误差:<input id="range" type="tel" v-model="query.range" @click="$event.target.select();"></label><br/> 
             <p id='btn_box'><button v-on:click="getData" id="query">查询</button><button @click="reset">重置</button></p>
         </div>
         <table cellspacing="0">
