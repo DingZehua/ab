@@ -149,11 +149,9 @@
             });
             let queryEl = cm.g('#query');
             let body = cm.g(`~body`);
-            console.log(body);
             window.onkeypress = (e) => {
                 if(e.key.toLowerCase() === 'enter') {
                     queryEl.click();
-                    
                 }
             }
         }
