@@ -148,7 +148,8 @@ function where(params,order) {
   }
 
   delete params.range;
-  
+  delete params.page; 
+
   for(let name in params) {
     if(params.hasOwnProperty(name)){
       if(where != '') where += ' AND ';

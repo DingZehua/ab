@@ -10,6 +10,7 @@
         html { font-size:26.6666667vw; font-family:'微软雅黑'}
         body {background-color:rgba(197, 231, 254,0.25);}
         body,h1,h2,h3 { font-size:16px;}
+        ul,li {list-style:none;}
         #loading {
             width : 0.8rem;
             height : 0.8rem;
@@ -30,7 +31,7 @@
             margin : auto;
         }
         #app table {
-            border-collapse:collapse;empty-cells: hide;width:100%;
+            border-collapse:collapse;empty-cells: hide;width:100%;user-select: none;
         }
         #app table td {
             border:1px solid black;text-align: center;
@@ -58,6 +59,14 @@
             width : 60px;
             margin-left:5px;
         }
+        #page {
+            user-select: none;
+        }
+        #page ul {display: block;text-align:center;font-size:0px;padding:4px 0px;}
+        #page li {display: inline-block;font-size:12px;border:1px solid #000;border-radius:2px;padding:5px;margin-left:2px;color:#333333}
+        #page .active,#page .non-active { 
+            color:#aaa;border:1px solid rgba(0, 0, 0 ,0.5);
+        }
     </style>
     <script>
         let vm = null;
@@ -74,7 +83,8 @@
                         width : 0,
                         height : 0,
                         brand : '',
-                        range : 3
+                        range : 3,
+                        page : 1
                     },
                     query_type : {
                         number : Number,
@@ -191,6 +201,15 @@
                 <td>{{item.layer}}</td>
             </tr>
         </table>
+        <div id="page">
+            <ul>
+                <li>&lt;</li>
+                <li>1</li>
+                <li class="active">2</li>
+                <li>3</li>
+                <li>&gt;</li>
+            </ul>
+        </div>
     </div>
 </body>
 </html>
