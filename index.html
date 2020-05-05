@@ -85,7 +85,7 @@
                         height : 0,
                         brand : '',
                         range : 3,
-                        page : 1
+                        
                     },
                     query_type : {
                         number : Number,
@@ -95,6 +95,11 @@
                         height : Number,
                         brand : String,
                         range : Number
+                    },
+                    page : {
+                        currentPage : 1,
+                        cnt : 0,
+                        maxPage : 0
                     }
                 },
                 methods : {
@@ -113,6 +118,8 @@
                                     order.call(this,data,'height');
                                 }
                                 this.items = result.data;
+                                this.page.currentPage = result.data.currentPage;
+                                this.page.cnt = result.data.cnt;
                             }
                             this.loading = false;
 
@@ -155,6 +162,14 @@
                         this.query.height = 0;
                         this.query.brand = '';
                         this.query.range = 3;
+                    }
+                },
+                computed : {
+                    pre() {
+                        return !!(this.page.currentPage > 1);
+                    },
+                    next() {
+                        return !!(this.page.currentPage > 1)
                     }
                 }
             });

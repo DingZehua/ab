@@ -11,13 +11,14 @@ const C = require('./CONSTANT');
 app.get('/data',(req,res) => {
   let result = {error : 0,data : ''};
   if(!empty(req.query)) {
-    let upMove = 5;
     // let sql = `
     //           SELECT top ${upMove} * FROM box WHERE box_id not in(
     //           SELECT top ${ upMove * 2 } box_id FROM box )
     //           ${where(req.query)}`;
     let cnt = 0;
-    let page = req.query.page ? req.query.page : 1;
+    let currentPage = req.query.currentPage ? req.query.currentPage : 1;
+    let eachPage = 5;
+    delete req.query.currentPage;
     
 
     let rule = where(req.query);
@@ -25,12 +26,13 @@ app.get('/data',(req,res) => {
     cn.query(`SELECT count(*) as cnt WHERE ${rule}`).then(
       (data) => {
         cnt = data[0].cnt;
-        console.log(rule);
+        console.log(data);
         if(cnt) {
           
-          return cn.query(`SELECT * FROM box  ${rule}`).then((data) => {
-            data.cnt = Math.ceil(cnt / upMove);
-            data.page = page;
+          return cn.query(splitPage(rule,eachPage,currentPage)).then((data) => {
+            data.maxPage = Math.ceil(cnt / eachPage);
+            data.currentPage = currentPage;
+            data.cnt = cnt;
             return data;
           },
           (error) => {
@@ -198,7 +200,10 @@ function where(params,order) {
   console.log(where);
   return where;
 }
-// splictPage (query,page)
+// splitPage (query,page)
+function splitPage(rule,eachPage,currentPage) {
+  let sql = `SELECT TOP ${eachPage} * FROM box WHERE box_id not in(SELECT top ${eachPage * (currentPage - 1)} box_id FROM box ${rule})`
+}
 function getDate(obj) {
   let time = null
   if(obj instanceof Date) {
