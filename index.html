@@ -46,8 +46,9 @@
         #app tr.odd {
             background-color: rgb(252, 243, 207);
         }
-        #params { padding:0.05rem 0 0.05rem 0.05rem; margin : auto auto ;}
+        #params { padding:0.05rem 0 0.05rem 0.05rem; margin : auto auto ;user-select: none;}
         #params input{
+            user-select:unset;
             width:0.4rem;
             text-indent : 0.2em;
         }
@@ -63,7 +64,7 @@
             user-select: none;
         }
         #page ul {display: block;text-align:center;font-size:0px;padding:4px 0px;}
-        #page li {display: inline-block;font-size:12px;border:1px solid #000;border-radius:2px;padding:5px;margin-left:2px;color:#333333}
+        #page li {display: inline-block;font-size:12px;border:1px solid #000;border-radius:2px;padding:5px 8px;margin-left:2px;color:#333333}
         #page .active,#page .non-active { 
             color:#aaa;border:1px solid rgba(0, 0, 0 ,0.5);
         }

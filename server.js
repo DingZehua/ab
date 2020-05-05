@@ -16,23 +16,47 @@ app.get('/data',(req,res) => {
     //           SELECT top ${upMove} * FROM box WHERE box_id not in(
     //           SELECT top ${ upMove * 2 } box_id FROM box )
     //           ${where(req.query)}`;
-    let sql = `SELECT * FROM box  ${where(req.query)}`;
-    console.log(sql);
-    cn.query(sql).then(
+    let cnt = 0;
+    let page = req.query.page ? req.query.page : 1;
+    
+
+    let rule = where(req.query);
+
+    cn.query(`SELECT count(*) as cnt WHERE ${rule}`).then(
       (data) => {
-        console.log(data);
+        cnt = data[0].cnt;
+        console.log(rule);
+        if(cnt) {
+          
+          return cn.query(`SELECT * FROM box  ${rule}`).then((data) => {
+            data.cnt = Math.ceil(cnt / upMove);
+            data.page = page;
+            return data;
+          },
+          (error) => {
+            throw error;
+          });
+        }
+        return {};
+      },
+      (error) => {
+        console.log(error);
+        throw error;
+      }
+    ).then(
+      (data) => {
         result.data = data;
       },
       (error) => {
         result.error = 1;
       }
-    ).then(() => {
+    )
+    .then(() => {
       res.send(JSON.stringify(result))
     });
   } else {
-    res.send();
+    res.send(`{'error' : 1, data : ''}`);
   }
-  
 });
 
 app.use('/server.js',function(req,res) {
@@ -148,7 +172,6 @@ function where(params,order) {
   }
 
   delete params.range;
-  delete params.page; 
 
   for(let name in params) {
     if(params.hasOwnProperty(name)){
@@ -174,7 +197,7 @@ function where(params,order) {
   console.log(where);
   return where;
 }
-
+// splictPage (query,page)
 function getDate(obj) {
   let time = null
   if(obj instanceof Date) {
