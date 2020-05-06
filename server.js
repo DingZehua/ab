@@ -18,7 +18,7 @@ app.get('/data',(req,res) => {
     //           SELECT top ${ upMove * 2 } box_id FROM box )
     //           ${where(req.query)}`;
     let cnt = 0;
-    let currentPage = req.query.currentPage ? req.query.currentPage : 1;
+    let currentPage = +req.query.currentPage ? +req.query.currentPage : 1;
     let eachPage = 5;
     delete req.query.currentPage;
     
@@ -201,7 +201,7 @@ function where(params) {
 // splitPage (query,page)
 function splitPage(rule,eachPage,currentPage) {
   if(currentPage > 1) {
-    return `SELECT TOP ${eachPage} * FROM box WHERE box_id not in(SELECT top ${eachPage * (currentPage - 1)} box_id FROM box ${rule})`;
+    return `SELECT TOP ${eachPage} * FROM box WHERE box_id in(SELECT top ${eachPage * (currentPage - 1)} box_id FROM box ${rule})`;
   }
   return `SELECT TOP ${eachPage} * FROM box ${rule}`;
 }
