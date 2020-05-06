@@ -68,6 +68,13 @@
         #page .active,#page .non-active { 
             color:#aaa;border:1px solid rgba(0, 0, 0 ,0.5);
         }
+        #page #pageCnt {
+            text-align: center;
+            font-size:14px;
+        }
+        #app table._blur .body{
+            filter: blur(10px); 
+        }
     </style>
     <script>
         let vm = null;
@@ -106,7 +113,7 @@
                     getData() {
                         if(this.loading) return;
                         this.loading = true;
-                        cm.get(this.filterQuery(),'data',(jsonData) => {
+                        cm.get({...this.filterQuery(),currentPage : this.page.currentPage},'data',(jsonData) => {
                             let result = JSON.parse(jsonData);
                             if(!result.error) {
                                 let data = result.data;
@@ -117,13 +124,17 @@
                                 } else if(this.query.height) {
                                     order.call(this,data,'height');
                                 }
-                                this.items = result.data;
-                                this.page.currentPage = result.data.currentPage;
-                                this.page.cnt = result.data.cnt;
+                                this.items = cm.copy(result.data);
+                                if(result.data) {
+                                    this.page.currentPage = result.page.currentPage;
+                                    this.page.cnt = result.page.cnt;
+                                    this.page.maxPage = result.page.maxPage;
+                                }
                             }
                             this.loading = false;
 
                             function order(data,field,) {
+                                if(!data) return;
                                 for(let i = 0,len = data.length;i < len; i++) {
                                         data[i]['order'] = Math.abs(this.query[field] - data[i][field]);
                                     }
@@ -139,6 +150,16 @@
                                     });
                             }
                         });
+                    },
+                    fetch() {
+                        this.page.currentPage = 1;
+                        this.page.cnt = 0;
+                        this.page.maxPage = 0;
+                        this.getData();
+                    },
+                    turn(page) {
+                        this.page.currentPage = page;
+                        this.getData();
                     },
                     filterQuery() {
                         let temp = {};
@@ -166,10 +187,24 @@
                 },
                 computed : {
                     pre() {
-                        return !!(this.page.currentPage > 1);
+                        return !!(toInt(this.page.currentPage) > 1);
                     },
                     next() {
-                        return !!(this.page.currentPage > 1)
+                        if(toInt(this.page.maxPage) <= 1) return false;
+                        if(this.page.currentPage  === this.page.maxPage ) return false;
+                        return true;
+                    },
+                    pageShow () {
+                        return (toInt(this.page.cnt) > 0);
+                    },
+                    pageList() {
+                        let arr = [];
+                        for(let i = 0,len = this.page.maxPage; i < len; i++) {
+                            arr[i] = {};
+                            arr[i].page = i + 1;
+                            arr[i].active = (i + 1) == this.page.currentPage;
+                        }
+                        return arr;
                     }
                 }
             });
@@ -180,6 +215,9 @@
                     queryEl.click();
                 }
             }
+        }
+        function toInt(o) {
+            return parseInt(o);
         }
     </script>
     <title>纸箱搜索</title>
@@ -195,9 +233,9 @@
             <label for="height">高度:<input id="height" type="tel" v-model="query.height" @click="$event.target.select();"></label><br/>
             <label for="brand">品牌:<input id="brand" type="text" v-model="query.brand" @click="$event.target.select();"></label>
             <label for="range">误差:<input id="range" type="tel" v-model="query.range" @click="$event.target.select();"></label><br/> 
-            <p id='btn_box'><button v-on:click="getData" id="query">查询</button><button @click="reset">重置</button></p>
+            <p id='btn_box'><button v-on:click="fetch" id="query">查询</button><button @click="reset">重置</button></p>
         </div>
-        <table cellspacing="0">
+        <table cellspacing="0" :class="[loading ? '_blur' : '']">
             <tr class="head">
                 <td>款号</td>
                 <td>长度</td>
@@ -207,7 +245,7 @@
                 <td>备注</td>
                 <td>层数</td>
             </tr>
-            <tr v-for="(item,i) in items" :class="[i % 2 == 0 ? '' : 'odd']">
+            <tr v-for="(item,i) in items" :class="[i % 2 == 0 ? '' : 'odd']" class="body">
                 <td>{{(item.sub_number ? item.number + '-' + item.sub_number : item.number) + '#'}}</td>
                 <td>{{item.len}}</td>
                 <td>{{item.width}}</td>
@@ -217,14 +255,15 @@
                 <td>{{item.layer}}</td>
             </tr>
         </table>
-        <div id="page">
+        <div id="page" v-if="pageShow">
             <ul>
-                <li>&lt;</li>
-                <li>1</li>
-                <li class="active">2</li>
-                <li>3</li>
-                <li>&gt;</li>
+                <li v-if="pre" @click="turn(page.currentPage - 1)">&lt;</li>
+                <li v-for="item in pageList" :class="[item.active ? 'active' :'']" @click="item.active || turn(item.page)">{{item.page}}</li>
+                <li v-if="next" @click="turn(+page.currentPage + 1)">&gt;</li>
             </ul>
+            <div id='pageCnt'>
+                总计:{{page.cnt}}条,共{{page.maxPage}}页,当前第{{page.currentPage}}页
+            </div>
         </div>
     </div>
 </body>

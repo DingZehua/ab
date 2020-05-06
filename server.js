@@ -9,7 +9,7 @@ var app = express();
 const C = require('./CONSTANT');
 
 app.get('/data',(req,res) => {
-  let result = {error : 0,data : ''};
+  let result = {error : 0,data : null,page : {currentPage : 1,cnt : 0,maxPage : 0}};
   if(!empty(req.query)) {
     // let sql = `
     //           SELECT top ${upMove} * FROM box WHERE box_id not in(
@@ -22,32 +22,34 @@ app.get('/data',(req,res) => {
     
 
     let rule = where(req.query);
-
-    cn.query(`SELECT count(*) as cnt WHERE ${rule}`).then(
+    let sql = `SELECT count(*) as cnt FROM box ${rule}`;
+    console.log(sql);
+    cn.query(sql).then(
       (data) => {
         cnt = data[0].cnt;
         console.log(data);
         if(cnt) {
-          
+          sql = splitPage(rule + sqlOrderBy('len','width','height'),eachPage,currentPage);
+          console.log(sql,cnt);
           return cn.query(splitPage(rule,eachPage,currentPage)).then((data) => {
-            data.maxPage = Math.ceil(cnt / eachPage);
-            data.currentPage = currentPage;
-            data.cnt = cnt;
+            result.page.maxPage = Math.ceil(cnt / eachPage);
+            result.page.currentPage = currentPage;
+            result.page.cnt = cnt;
             return data;
           },
           (error) => {
             throw error;
           });
         }
-        return {};
+        return null;
       },
       (error) => {
-        console.log(error);
         throw error;
       }
     ).then(
       (data) => {
         result.data = data;
+        console.log(data);
       },
       (error) => {
         console.log(error);
@@ -55,17 +57,17 @@ app.get('/data',(req,res) => {
       }
     )
     .then(() => {
+      console.log(JSON.stringify(result));
       res.send(JSON.stringify(result))
     });
   } else {
-    res.send(`{'error' : 1, data : ''}`);
+    res.send(`{'error' : 1, data : null}`);
   }
 });
 
 app.use('/server.js',function(req,res) {
   res.send('404');
 })
-
 
 app.get('/*.*', function (req, res) {
   res.sendFile(convert(req.path));
@@ -167,7 +169,7 @@ function addship(data) {
 
 
 
-function where(params,order) {
+function where(params) {
   let where = '';
   let range = 0;
   if(!empty(params.range)) {
@@ -191,19 +193,20 @@ function where(params,order) {
   if(where != '') {
     where = ' WHERE ' + where;
   }
-
-  where += ' ORDER BY len,width,height '
-
-  if(order) {
-
-  }
   console.log(where);
   return where;
 }
 // splitPage (query,page)
 function splitPage(rule,eachPage,currentPage) {
-  let sql = `SELECT TOP ${eachPage} * FROM box WHERE box_id not in(SELECT top ${eachPage * (currentPage - 1)} box_id FROM box ${rule})`
+  if(currentPage > 1) {
+    return `SELECT TOP ${eachPage} * FROM box WHERE box_id not in(SELECT top ${eachPage * (currentPage - 1)} box_id FROM box ${rule})`;
+  }
+  return `SELECT TOP ${eachPage} * FROM box ${rule}`;
 }
+function sqlOrderBy() {
+  return ` ORDER BY ${Array.from(arguments)}`;
+}
+
 function getDate(obj) {
   let time = null
   if(obj instanceof Date) {
