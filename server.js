@@ -4,6 +4,8 @@ var url = require('url');
 var ADODB = require('node-adodb');
 var cn = ADODB.open('Provider=Microsoft.ACE.OLEDB.12.0;Data Source='+ "D:\\www\\database\\Database3_be.accdb;");
 
+const config = require('./config');
+
 var express = require('express');
 var app = express();
 const C = require('./CONSTANT');
@@ -102,7 +104,7 @@ app.get('/ship_modify', async function(req,res) {
   res.send('Error,params invalid');
 });
 
-var server = app.listen({host:"127.0.0.1",port : 80}, function () {
+var server = app.listen(config.host, function () {
  
   var host = server.address().address
   var port = server.address().port
