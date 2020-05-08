@@ -198,12 +198,15 @@ function where(params) {
   console.log(where);
   return where;
 }
+
+// 先获取id结合,再从集合中取出id，再使用这个集合去做分页算法.
 // splitPage (query,page)
 function splitPage(rule,eachPage,currentPage) {
-  if(currentPage > 1) {
-    return `SELECT TOP ${eachPage} * FROM box WHERE box_id in(SELECT top ${eachPage * (currentPage - 1)} box_id FROM box ${rule})`;
-  }
-  return `SELECT TOP ${eachPage} * FROM box ${rule}`;
+  // if(currentPage > 1) {
+  //   return `SELECT TOP ${eachPage} * FROM box WHERE box_id in(SELECT top ${eachPage * (currentPage - 1)} box_id FROM box ${rule})`;
+  // }
+  // return `SELECT TOP ${eachPage} * FROM box ${rule}`;
+  return `SELECT * FROM box ${rule}`;
 }
 function sqlOrderBy() {
   return ` ORDER BY ${Array.from(arguments)}`;
