@@ -19,7 +19,7 @@ app.get('/data',(req,res) => {
     //           ${where(req.query)}`;
     let cnt = 0;
     let currentPage = +req.query.currentPage ? +req.query.currentPage : 1;
-    let eachPage = 5;
+    let eachPage = 99999;
     delete req.query.currentPage;
     
 
